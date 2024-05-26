@@ -11,6 +11,8 @@ int alleLED2[] = { 8, 9, 10, 11, 12 };
 int chk = 0;
 int chk2 = 0;
 
+int car0, car1, car2, car3;
+
 int check = 0;
 int check2 = 0;
 
@@ -74,15 +76,15 @@ void Shuffle_2() {
 void Carbon() {
 
   //leser dataen og deretter lagrer den i variabler car0 og car1
-  int car0 = analogRead(A2);
-  int car1 = analogRead(A3);
+  car0 = analogRead(A2);
+  car1 = analogRead(A3);
 
   /*If statement som vi sjekke hvis begge sensorers karbondioxid er under en terksel
     Den vil då sette check til 1 slik at så lenge LED'er er på vil den ikke gå i denne if statement
     Den vil også sette en anna variabel "chk" som vil då gjøre det mulig å gå i en anna if statement senere i programmen
     Dermed er det en for-loop som vil skru på alle LED'er
   */
-  if ((car0 < 130 && car1 < 130) && check != 1) {
+  if((car0 < 20 && car1 < 46) && check != 1) {
     check = 1;
     chk = 0;
     for (int i = 0; i < antLED; i++) {
@@ -123,7 +125,7 @@ void CarLED() {
         Hvis ja, Setter "chk til 1" slik at programmet går ikke inn i if statement for å unngå unødvendig venting
         Setter "check til 0" til å gjøre det mulig for LED'er å skru seg på igjen etter at denne koden er feridg
       */
-  if ((car0 > 130 || car1 > 130) && chk != 1) {
+  if ((car0 > 20 || car1 > 46) && chk != 1) {
     chk = 1;
     check = 0;
     for (int i = 0; i < antLED; i++) {
@@ -170,8 +172,8 @@ void CarLED() {
 void Carbon2() {
 
   //leser dataen og deretter lagrer den i variabler car2 og car3
-  int car2 = analogRead(A0);
-  int car3 = analogRead(A1);
+  car2 = analogRead(A0);
+  car3 = analogRead(A1);
 
   /*If statement som vi sjekke hvis begge sensorers karbondioxid er under en terksel
     Den vil då sette check2 til 1 slik at så lenge LED'er er på vil den ikke gå i denne if statement
@@ -180,7 +182,8 @@ void Carbon2() {
     etter at verdien til begge snesorer er under en terksel
     Dermed er det en for-loop som vil skru på alle LED'er
   */
-  if ((car2 < 140 || car3 < 210) && check2 != 1) {
+
+  if((car2 < 15 && car3 < 129) && check2 != 1) {
     check2 = 1;
     chk2 = 0;
     for (int i = 0; i < antLED2; i++) {
@@ -223,7 +226,7 @@ void CarLED2() {
         Hvis ja, Setter "chk2 til 1" slik at programmet går ikke inn i if statement for å unngå unødvendig venting
         Setter "check2 til 0" til å gjøre det mulig for LED'er å skru seg på igjen etter at denne koden er feridg
       */
-  if ((car2 > 140 || car3 > 210) && chk2 != 1) {
+  if ((car2 > 15 || car3 > 129) && chk2 != 1) {
 
     chk2 = 1;
     check2 = 0;
