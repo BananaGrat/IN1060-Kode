@@ -1,46 +1,64 @@
+/*
+  Når det refereres til forskjellige lunger, vil det si at hver lunge i prototypen
+  har en egen breadboard med 5 lamper og 2 sensorer hver.
+  De to lungene handler uavhengig av hverandre og kodes derfor hver for seg
+
+  Prototypen skal fungere slik: bruker skal røyke på lungene, og sensorene
+  skal lese karbonmonoksid verdiene, og om det bikker en terskel skal 
+  lysene i den lungen skru av stegvis for å visualisere at lungene dør
+
+  (terskelen er en terskel vi prøvde oss frem med for å finne hvilken verdi 
+  som ikke er så høy at man må røyke masse for at prototypen skal reagere, men 
+  ikke så lav at prototypen reagerer uten interaksjon. Vi testet med sigarettrøyk 
+  hva terskelen måtte være for at den plukket opp ett pust med røyk på lungene.)
+*/
+
 //Initialiserer globale variabler som vil kunne bli brukt av alle funksjonene
 
 int antLED = 5;
 int antLED2 = 5;
 
-//Lage 2 array med de pins som blir brukt
-//En array er for en breadboard og den andre array er for en anna breadboard
-int alleLED[] = { 3, 4, 5, 6, 7 };
-int alleLED2[] = { 8, 9, 10, 11, 12 };
+//Lage 2 array med de pins som blir brukt til lampene
+int alleLED[] = { 3, 4, 5, 6, 7 }; //lampene i lunge 1
+int alleLED2[] = { 8, 9, 10, 11, 12 }; //lampene i lunge 2
 
+//sjekkverdier
 int chk = 0;
 int chk2 = 0;
-
-int car0, car1, car2, car3;
 
 int check = 0;
 int check2 = 0;
 
+//initaliserer led lampene som blir brukt og starter serial monitor til å skrive ut
 void setup() {
 
-  /* Lager en for-loop for å intialisere alle LED'er som blir brukt på første breadboardet
-     Det samme med andre for-loopen men med LED'er til den andre breadboardet
-  */
+  //går igjennom og lager liste av pins til hver LEDlampe i lunge 1
   for (int n = 0; n < antLED; n++) {
 
     pinMode(alleLED[n], OUTPUT);
   }
 
+  //går igjennom og lager liste av pins til hver LEDlampe i lunge 2
   for (int y = 0; y < antLED2; y++) {
 
     pinMode(alleLED2[y], OUTPUT);
   }
 
+  // gjør klart til å skrive ut i Serial monitor
   Serial.begin(9600);
 }
 
 void loop() {
-  Carbon();
-  Carbon2();
+  // kjører så lenge prototypen er koblet til
+  // leser hver lunge for å sjekke om karbonmonoksid-verdien bikker en terskel
+
+  ReadLunge1(); //sender til Lunge1LED som styrer lysene i lunge 1
+  ReadLunge2(); //sender til Lunge1LED som styrer lysene i lunge 2
 }
 
-//Funksjonen for å bytte rekkefølgen av LED'er i arrayet alleLED
-void Shuffle() {
+
+// shuffle tilfeldig rekkefølge i lunge 1 lampene, for at de skal skrus av/på i tifleldig rekkefølge
+void Shuffle1() {
 
   for (int a = 0; a < antLED; a++) {
 
@@ -53,8 +71,10 @@ void Shuffle() {
     alleLED[rand] = temp;
   }
 }
-//Funksjonen for å bytte rekkefølgen av LED'er i arrayet alleLED2
-void Shuffle_2() {
+
+
+// shuffle tilfeldig rekkefølge i lunge 2 lampene  for at de skal skrus av/på i tifleldig rekkefølge
+void Shuffle2() {
 
   for (int b = 0; b < antLED; b++) {
 
@@ -69,22 +89,23 @@ void Shuffle_2() {
 }
 
 /*
-  Funksjon som vil skru på LED'er når terskelen er over en viss verdi
-  Funksjonen vil også printe ut til hvor mye karbonmonoksid
-  er i de 2 sensorene som er på første breadbordet til Serial monitoren
+  Funksjon som leser sensor verdier og sender til funksjon som styrer LEDlamper i samme lunge
+  Funksjonen vil også printe ut hvor mye karbonmonoksid som leses
+  i de 2 sensorene som er i lunge 1 til Serial monitoren så vi kan lese
 */
-void Carbon() {
+void ReadLunge1() {
 
-  //leser dataen og deretter lagrer den i variabler car0 og car1
-  car0 = analogRead(A2);
-  car1 = analogRead(A3);
+  //leser dataen (karbononoksid-verdiene) og deretter lagrer det i variabler car0 og car1
+  int car0 = analogRead(A2);
+  int car1 = analogRead(A3);
 
-  /*If statement som vi sjekke hvis begge sensorers karbondioxid er under en terksel
-    Den vil då sette check til 1 slik at så lenge LED'er er på vil den ikke gå i denne if statement
-    Den vil også sette en anna variabel "chk" som vil då gjøre det mulig å gå i en anna if statement senere i programmen
-    Dermed er det en for-loop som vil skru på alle LED'er
+  /*If statement som vil sjekke om begge sensorene leser verdier under en terskel
+    koden vil da sette check til 1 som sier at så lenge LEDlampene allerede er på vil den ikke gå i denne kodesnutten
+    Den vil også sette en annen variabel "chk" som vil gjøre det mulig å gå i en annen if statement senere i programmet
+    Derretter er det en for løkke som vil skru på alle LEDlampene (om de ikke allerede er på)
   */
-  if((car0 < 20 && car1 < 46) && check != 1) {
+
+  if ((car0 < 130 && car1 < 130) && check != 1) {
     check = 1;
     chk = 0;
     for (int i = 0; i < antLED; i++) {
@@ -92,8 +113,9 @@ void Carbon() {
       delay(250);  //Delay for 0.25 sec.
     }
   }
-  //Bruk av funksjonene Shuffle for å bytte verdier til arrayet alleLED
-  Shuffle();
+
+  //Bruk av funksjonene Shuffle1 for å bytte verdier til arrayet alleLED, altså gi listen tilfeldig rekkefølge
+  Shuffle1();
 
   //Printer Karbonmonoksid verdier til Serial monitoren
   Serial.println("Første lunge");
@@ -106,35 +128,39 @@ void Carbon() {
 
   Serial.println(car1);
 
-  delay(300);  //Delay for 0.3 sec.
+  delay(300);  //Delay for 0.3 sec før verdiene leses igjen
 
 
-  //Kaller på funksjonen CarLED
-  CarLED();
+  //Kaller på funksjonen som styrer lys i lunge 1
+  Lunge1LED();
 }
-/*Funksjonen vil sjekke hvis karbonmonoksid til en av de 2 sensorene 
-  som er på samme breadboardet er over et viss terskel
-  Hvis den er vil alle LED'er på den breadboardet skru seg av
-*/
-void CarLED() {
 
-  //Bruk av Shuffle funksjonen for å bytte verdier til arrayet
-  Shuffle();
+
+/*Funksjonen vil sjekke om karbonmonoksid-verdiene i en av de 2 sensorene 
+  som er på samme breadboardet (altså i samme lunge) er over en viss terskel
+  Hvis terskelen er nådd vil alle LED'er på den breadboardet skru seg av gradvis og stegvis
+  Hvis ikke vil lysene forbli på
+*/
+void Lunge1LED() {
+
+  //Bruk av Shuffle funksjonen for å bytte verdier til arrayet, og gi lampene tilfeldig rekkefølge for å skrus av/på
+  Shuffle1();
 
   /*If statement som sjekker hvis en av de 2 sensorene er over et viss terskel
-        Hvis ja, Setter "chk til 1" slik at programmet går ikke inn i if statement for å unngå unødvendig venting
+        Hvis ja, Setter "chk til 1" slik at programmet ikke går inn i if statement for å unngå unødvendig venting
         Setter "check til 0" til å gjøre det mulig for LED'er å skru seg på igjen etter at denne koden er feridg
       */
-  if ((car0 > 20 || car1 > 46) && chk != 1) {
+
+  if ((car0 > 130 || car1 > 130) && chk != 1) {
     chk = 1;
     check = 0;
     for (int i = 0; i < antLED; i++) {
 
-      //Dette får lyset til å falme saktig ved å sette styrken til lyset lavare og lavare
+      //Dette får lyset til å falme sakte ved å sette lysstyrken lavere og lavere
 
       analogWrite(alleLED[i], 270);
 
-      delay(100);  //Delay for 0.1 sec.
+      delay(100);  //Delay for 0.1 sec. //mellomrom mellom hver nedstigning i lysstyrke
 
       analogWrite(alleLED[i], 180);
 
@@ -154,36 +180,39 @@ void CarLED() {
     }
   }
 
-  //Bytter på verdi rekkefølgjen av arrayet
-  Shuffle();
+  //Bytter på verdi rekkefølgjen av LED-arrayet i lunge 1
+  Shuffle1();
 }
 
-/* Fra dette tidspunkten vil koden være den samme som i funksjonene Carbon og CarLED
-  Eneste som blir forskjellig er terskelen for at LED'er skal skru seg på og av blir høyere eller lavare
-  I tillegg til at print setninga sier andre lungen istedenfor første lungen
-  og at variabel navn og navn til funksjoner blir forandret 
+
+/* Fra dette tidspunktet vil koden gjøre det samme som i funksjonene ReadLunge1 og Lunge1LED
+  bare for lunge 2.
+  Eneste som blir forskjellig er terskelen for at LED'er skal skru seg på og av blir høyere eller lavere fordi
+  terskelen i sensorene måtte tilpasses hver enkelte sensor,og at noen variabelnavn endres
+
+  Altså tidligere kode er for Lunge 1, og kommende kode er for Lunge 2.
   */
+
+
 
 /*
-  Funksjon som vil skru på LED'er når terskelen er over en viss verdi
-  Funksjonen vil også printe ut til hvor mye karbonmonoksid
-  er i de 2 sensorene som er på første breadbordet til Serial monitoren
+  Funksjon som leser sensor verdier og sender til funksjon som styrer LEDlamper i samme lunge
+  Funksjonen vil også printe ut hvor mye karbonmonoksid som leses
+  i de 2 sensorene som er i lunge 2 til Serial monitoren så vi kan lese
 */
-void Carbon2() {
+void ReadLunge2() {
 
   //leser dataen og deretter lagrer den i variabler car2 og car3
-  car2 = analogRead(A0);
-  car3 = analogRead(A1);
+  int car2 = analogRead(A0);
+  int car3 = analogRead(A1);
 
-  /*If statement som vi sjekke hvis begge sensorers karbondioxid er under en terksel
-    Den vil då sette check2 til 1 slik at så lenge LED'er er på vil den ikke gå i denne if statement
-    Den vil også sette en anna variabel, chk2 til 0, 
-    som vil då gjøre det mulig å gå i en anna if statement senere i programmen
-    etter at verdien til begge snesorer er under en terksel
-    Dermed er det en for-loop som vil skru på alle LED'er
+  /*If statement som vil sjekke om begge sensorene leser verdier under en terskel
+    koden vil da sette check til 1 som sier at så lenge LEDlampene allerede er på vil den ikke gå i denne kodesnutten
+    Den vil også sette en annen variabel "chk" som vil gjøre det mulig å gå i en annen if statement senere i programmet
+    Derretter er det en for løkke som vil skru på alle LEDlampene (om de ikke allerede er på)
   */
 
-  if((car2 < 15 && car3 < 129) && check2 != 1) {
+  if ((car2 < 140 || car3 < 210) && check2 != 1) {
     check2 = 1;
     chk2 = 0;
     for (int i = 0; i < antLED2; i++) {
@@ -192,8 +221,8 @@ void Carbon2() {
     }
   }
 
-  //Bruk av funksjonene Shuffle_2 for å bytte rekkefølgjen av verdier i arrayet alleLED2
-  Shuffle_2();
+  //Bruk av funksjonene Shuffle2 for å bytte rekkefølgen av verdier i arrayet alleLED2
+  Shuffle2();
 
   //Printer Karbonmonoksid verdier til Serial monitoren
   Serial.println("Andre lunge");
@@ -206,37 +235,40 @@ void Carbon2() {
 
   Serial.println(car3);
 
-  delay(300);  //Delay for 0.3 sec.
+  delay(300);  //Delay for 0.3 sec. før det leses og printes igjen
 
 
-  //Kaller på funksjonen CarLED2
-  CarLED2();
+  //Kaller på funksjonen som styrer lys i lunge 2
+  Lunge2LED();
 }
 
-/*Funksjonen vil sjekke hvis karbonmonoksid til en av de 2 sensorene 
-  som er på samme breadboardet er over et viss terskel
-  Hvis den er vil alle LED'er på den breadboardet skru seg av
+
+/*Funksjonen vil sjekke om karbonmonoksid-verdiene i en av de 2 sensorene 
+  som er på samme breadboardet (altså i samme lunge) er over en viss terskel
+  Hvis terskelen er nådd vil alle LED'er på den breadboardet skru seg av gradvis og stegvis
+  Hvis ikke vil lysene forbli på
 */
-void CarLED2() {
+void Lunge2LED() {
 
   //Bruk av Shuffle funksjonen for å bytte verdier til arrayet
-  Shuffle_2();
+  Shuffle2();
 
-  /*If statement som sjekker hvis verdien til en av de to sensorer overskrides
-        Hvis ja, Setter "chk2 til 1" slik at programmet går ikke inn i if statement for å unngå unødvendig venting
-        Setter "check2 til 0" til å gjøre det mulig for LED'er å skru seg på igjen etter at denne koden er feridg
+  /*If statement som sjekker hvis en av de 2 sensorene er over et viss terskel
+        Hvis ja, Setter "chk til 1" slik at programmet ikke går inn i if statement for å unngå unødvendig venting
+        Setter "check til 0" til å gjøre det mulig for LED'er å skru seg på igjen etter at denne koden er feridg
       */
-  if ((car2 > 15 || car3 > 129) && chk2 != 1) {
+
+  if ((car2 > 140 || car3 > 210) && chk2 != 1) {
 
     chk2 = 1;
     check2 = 0;
 
     for (int i = 0; i < antLED2; i++) {
 
-      //Dette får lyset til å falme saktig ved å sette styrken til lyset lavare og lavare
+      //Dette får lyset til å falme sakte ved å sette lysstyrken lavere og lavere
       analogWrite(alleLED[i], 270);
 
-      delay(100);  //Delay for 0.1 sec.
+      delay(100);  //Delay for 0.1 sec. mellomrom mellom hver nedstigning i lysstyrke
 
       analogWrite(alleLED[i], 180);
 
@@ -257,5 +289,5 @@ void CarLED2() {
   }
 
   //Bytter på verdi rekkefølgjen av arrayet
-  Shuffle_2();
+  Shuffle2();
 }
