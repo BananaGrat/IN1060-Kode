@@ -105,7 +105,7 @@ void ReadLunge1() {
     Derretter er det en for løkke som vil skru på alle LEDlampene (om de ikke allerede er på)
   */
 
-  if ((car0 < 130 && car1 < 130) && check != 1) {
+  if((car0 < 20 && car1 < 46) && check != 1) {
     check = 1;
     chk = 0;
     for (int i = 0; i < antLED; i++) {
@@ -151,7 +151,7 @@ void Lunge1LED() {
         Setter "check til 0" til å gjøre det mulig for LED'er å skru seg på igjen etter at denne koden er feridg
       */
 
-  if ((car0 > 130 || car1 > 130) && chk != 1) {
+  if((car0 < 20 && car1 < 46) && chk != 1) {
     chk = 1;
     check = 0;
     for (int i = 0; i < antLED; i++) {
@@ -212,7 +212,7 @@ void ReadLunge2() {
     Derretter er det en for løkke som vil skru på alle LEDlampene (om de ikke allerede er på)
   */
 
-  if ((car2 < 140 || car3 < 210) && check2 != 1) {
+  if((car2 < 15 && car3 < 129) && check2 != 1) {
     check2 = 1;
     chk2 = 0;
     for (int i = 0; i < antLED2; i++) {
@@ -258,7 +258,7 @@ void Lunge2LED() {
         Setter "check til 0" til å gjøre det mulig for LED'er å skru seg på igjen etter at denne koden er feridg
       */
 
-  if ((car2 > 140 || car3 > 210) && chk2 != 1) {
+  if((car2 < 15 && car3 < 129) && check2 != 1) {
 
     chk2 = 1;
     check2 = 0;
